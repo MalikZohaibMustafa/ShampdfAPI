@@ -47,7 +47,7 @@ def generate_pdf():
     english_pdf_path = create_pdf(data, 'english')
 
     # Send the English PDF file
-    return send_file(english_pdf_path, as_attachment=True, attachment_filename='quotation_english.pdf')
+    return send_file(english_pdf_path, as_attachment=False)
 
 
 # @app.route('/generate-pdf', methods=['POST'])
