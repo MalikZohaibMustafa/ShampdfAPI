@@ -39,27 +39,36 @@ def reshape_arabic(text):
     return bidi_text
 
 
-
-
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
     data = request.json
     
-    # Generate English and Arabic PDFs
+    # Generate only English PDF
     english_pdf_path = create_pdf(data, 'english')
-    arabic_data = translate_data_to_arabic(data)
-    # arabic_data = translate_text(data)
 
-    arabic_pdf_path = create_pdf(arabic_data, 'arabic')
+    # Send the English PDF file
+    return send_file(english_pdf_path, as_attachment=True)
 
-    # Zip the files
-    zip_path = "quotation_files.zip"
-    with zipfile.ZipFile(zip_path, 'w') as zipf:
-        zipf.write(english_pdf_path, os.path.basename(english_pdf_path))
-        zipf.write(arabic_pdf_path, os.path.basename(arabic_pdf_path))
 
-    # Send the zip file
-    return send_file(zip_path, as_attachment=True)
+# @app.route('/generate-pdf', methods=['POST'])
+# def generate_pdf():
+#     data = request.json
+    
+#     # Generate English and Arabic PDFs
+#     english_pdf_path = create_pdf(data, 'english')
+#     arabic_data = translate_data_to_arabic(data)
+#     # arabic_data = translate_text(data)
+
+#     arabic_pdf_path = create_pdf(arabic_data, 'arabic')
+
+#     # Zip the files
+#     zip_path = "quotation_files.zip"
+#     with zipfile.ZipFile(zip_path, 'w') as zipf:
+#         zipf.write(english_pdf_path, os.path.basename(english_pdf_path))
+#         zipf.write(arabic_pdf_path, os.path.basename(arabic_pdf_path))
+
+#     # Send the zip file
+#     return send_file(zip_path, as_attachment=True)
 
 def translate_data_to_arabic(data):
     # Assuming the data is a dictionary with text values
