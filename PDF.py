@@ -26,7 +26,7 @@ from google.cloud import translate_v2 as translate
 #     return result['translatedText']
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app)
 
 def translate_text(text, dest_language):
     translator = Translator()
