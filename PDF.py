@@ -132,27 +132,31 @@ def create_pdf(quotation_id,data, language):
   # Styles
     styles = getSampleStyleSheet()
     bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontName='Helvetica-Bold')
-    discount_percentage = float(data.get('discountPer', 0)) / 100
 
     # Table with special first row and bold headings
     table_data = [
         ["AlRajhi Quotation 2023"],  # First row
-        ["Product Name", "Size", "Price/SAR", "Quantity", "Total Price/SAR"]  # Headings
+        ["Product Name", "Size", "Price/SAR", "Quantity", "Discounted Price/SAR", "Total Price/SAR"]  # Headings
     ]
       # Populate table_data with items from data['productList']
     for product in data['productList']:
         product_name = product['product']['productName']
+        base_price = float(product['product']['basePrice'])
+
         for size in product['selectedSizes']:
             base_price = float(product['product']['basePrice'])
             quantity = float(product['quantity'])
-            discounted_price = base_price * (1 - discount_percentage)
+            individual_discount = float(product.get('discount', 0)) / 100
+
+            discounted_price = base_price * (1 - individual_discount)
             total_price = discounted_price * quantity
 
             row = [
                 product_name,
                 size['size'],
-                "{:.2f}".format(discounted_price),
+                "{:.2f}".format(base_price),
                 str(quantity),
+                "{:.2f}".format(discounted_price),
                 "{:.2f}".format(total_price)
             ]
             table_data.append(row)
@@ -167,7 +171,7 @@ def create_pdf(quotation_id,data, language):
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('ALIGN', (0, 2), (-1, -1), 'CENTER')
     ])
-    table = Table(table_data, colWidths=[None] * 5, style=table_style)
+    table = Table(table_data, colWidths=[None] * 6, style=table_style)
     elements.append(table)
 
 
