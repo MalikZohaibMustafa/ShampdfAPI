@@ -1,7 +1,7 @@
 import os
 from bidi.algorithm import get_display
 import arabic_reshaper
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 from flask_cors import CORS
 
 from reportlab.lib import colors
@@ -39,12 +39,15 @@ def reshape_arabic(text):
     return bidi_text
 
 
-@app.route('/generate-pdf', methods=['POST'])
-def generate_pdf():
+@app.route('/generate-pdf/<int:quotation_id>', methods=['GET'])
+def generate_pdf(quotation_id):
+    if not quotation_id:
+        return jsonify({"error": "Quotation not found"}), 404
+
     data = request.json
     
     # Generate only English PDF
-    english_pdf_path = create_pdf(data, 'english')
+    english_pdf_path = create_pdf(quotation_id, data, 'english')
 
     # Send the English PDF file
     return send_file(english_pdf_path, as_attachment=False)
@@ -95,7 +98,7 @@ def add_bottom_image(canvas, doc, image_path):
 
     for page in range(doc.page):
         canvas.drawImage(image_path, x, y, width=image_width, height=image_height, mask='auto', page=page + 1)
-def create_pdf(data, language):
+def create_pdf(quotation_id,data, language):
     pdf_path = f"quotation_{language}.pdf"
     doc = SimpleDocTemplate(pdf_path, pagesize=letter)
     elements = []
@@ -116,7 +119,7 @@ def create_pdf(data, language):
     bold_center_style = ParagraphStyle('BoldCenterStyle', parent=styles['Normal'], fontName='Helvetica-Bold', alignment=TA_CENTER)
     bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontName='Helvetica-Bold')
 
-    elements.append(Paragraph("Quotation number: 101 / 2023", bold_center_style))
+    elements.append(Paragraph(f"Quotation number: {quotation_id} / 2023", bold_center_style))
     elements.append(Spacer(1, 0.25*inch))
 
     elements.append(Paragraph("Date: " + datetime.datetime.now().strftime("%d/%m/%Y"), bold_style))
@@ -189,6 +192,7 @@ def create_pdf(data, language):
     doc.build(elements)
   
     return pdf_path
+
 def reshape_arabic(text):
     reshaped_text = arabic_reshaper.reshape(text)
     bidi_text = get_display(reshaped_text)
