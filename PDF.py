@@ -39,7 +39,7 @@ def reshape_arabic(text):
     return bidi_text
 
 
-@app.route('/generate-pdf/<int:quotation_id>', methods=['GET'])
+@app.route('/generate-pdf/<int:quotation_id>', methods=['POST'])
 def generate_pdf(quotation_id):
     if not quotation_id:
         return jsonify({"error": "Quotation not found"}), 404
