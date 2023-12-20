@@ -102,6 +102,7 @@ def create_pdf(quotation_id,data, language):
     pdf_path = f"quotation_{language}.pdf"
     doc = SimpleDocTemplate(pdf_path, pagesize=letter)
     elements = []
+    overall_total = 0
 
     image_left = Image('LeftLogo.PNG', 1.25*inch, 1*inch)
     image_right = Image('RightLogo.PNG', 1.75*inch, 0.8*inch)
@@ -150,6 +151,7 @@ def create_pdf(quotation_id,data, language):
 
             discounted_price = base_price * (1 - individual_discount)
             total_price = discounted_price * quantity
+            overall_total += total_price
 
             row = [
                 product_name,
@@ -173,6 +175,10 @@ def create_pdf(quotation_id,data, language):
     ])
     table = Table(table_data, colWidths=[None] * 6, style=table_style)
     elements.append(table)
+# Adding Overall Total Field
+    elements.append(Spacer(1, 0.25*inch))
+    total_style = ParagraphStyle('TotalStyle', parent=styles['Normal'], fontName='Helvetica-Bold', alignment=TA_RIGHT)
+    elements.append(Paragraph(f"Overall Total: SAR {overall_total:.2f}", total_style))
 
 
   # Styles
