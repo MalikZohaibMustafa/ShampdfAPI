@@ -132,6 +132,7 @@ def create_pdf(quotation_id,data, language):
   # Styles
     styles = getSampleStyleSheet()
     bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontName='Helvetica-Bold')
+    discount_percentage = float(data.get('discountPer', 0)) / 100
 
     # Table with special first row and bold headings
     table_data = [
@@ -142,12 +143,17 @@ def create_pdf(quotation_id,data, language):
     for product in data['productList']:
         product_name = product['product']['productName']
         for size in product['selectedSizes']:
+            base_price = float(product['product']['basePrice'])
+            quantity = float(product['quantity'])
+            discounted_price = base_price * (1 - discount_percentage)
+            total_price = discounted_price * quantity
+
             row = [
                 product_name,
                 size['size'],
-                str(product['product']['basePrice']),
-                product['quantity'],
-                "{:.2f}".format(float(product['quantity']) * product['product']['basePrice'])
+                "{:.2f}".format(discounted_price),
+                str(quantity),
+                "{:.2f}".format(total_price)
             ]
             table_data.append(row)
             product_name = ""  # Clear pro
