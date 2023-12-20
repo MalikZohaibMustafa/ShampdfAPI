@@ -14,11 +14,16 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 import datetime
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.utils import ImageReader
 
 from bidi.algorithm import get_display
 import arabic_reshaper
 from googletrans import Translator, LANGUAGES
 from google.cloud import translate_v2 as translate
+
+
+
+page_width, page_height = letter
 
 # def translate_text(text, target_language):
 #     client = translate.Client('AIzaSyCUKXdiIMLeUYQoaXlJhu4q8Flpc-3k_U0')
@@ -85,29 +90,26 @@ def translate_data_to_arabic(data):
 
 
 
-
-def add_bottom_image(canvas, doc, image_path):
-    """
-    Draw a centered image at the bottom of each page.
-    """
-    page_width, page_height = letter
-    image_width, image_height = 2*inch, 1*inch  # You can adjust this as needed
-
-    x = (page_width - image_width) / 2
-    y = 0  # Place the image at the very bottom of the page
-
-    for page in range(doc.page):
-        canvas.drawImage(image_path, x, y, width=image_width, height=image_height, mask='auto', page=page + 1)
 def create_pdf(quotation_id,data, language):
     pdf_path = f"quotation_{language}.pdf"
     doc = SimpleDocTemplate(pdf_path, pagesize=letter)
     elements = []
     overall_total = 0
+    background_image_path = 'bg.jpeg'  # Update with the path to your image
+    background_image = ImageReader(background_image_path)
 
-    image_left = Image('LeftLogo.PNG', 1.25*inch, 1*inch)
-    image_right = Image('RightLogo.PNG', 1.75*inch, 0.8*inch)
-    image_table = Table([[image_left, '', image_right]], colWidths=[2*inch, 3*inch, 1*inch])
-    elements.append(image_table)
+    # Define the canvas method to add the background image
+    def create_page(canvas, doc):
+        canvas.drawImage(background_image, x=0, y=0, width=page_width, height=page_height)
+        canvas.saveState()
+        # Other content to be drawn on the page should go here
+        canvas.restoreState()
+    doc.build(elements, onFirstPage=create_page, onLaterPages=create_page)
+
+    # image_left = Image('LeftLogo.PNG', 1.25*inch, 1*inch)
+    # image_right = Image('RightLogo.PNG', 1.75*inch, 0.8*inch)
+    # image_table = Table([[image_left, '', image_right]], colWidths=[2*inch, 3*inch, 1*inch])
+    # elements.append(image_table)
 
     elements.append(Spacer(1, 0.25*inch))
 
