@@ -7,3 +7,4 @@ google-cloud-translate
 python-dotenv
 flask-cors
 gunicorn 
+arabic-reshaper
