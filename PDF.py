@@ -100,7 +100,7 @@ def translate_data_to_arabic(data):
 def create_pdf(quotation_id,data, language):
     if language == 'arabic':
         styles = getSampleStyleSheet()
-        pdf_path = f"quotation_{language}.pdf"
+        pdf_path = f"Arabic_quotation_{language}.pdf"
         paragraph_right_style = ParagraphStyle('ArabicStyle', fontName='Amiri', alignment=TA_RIGHT)
         paragraph_left_style = ParagraphStyle('ArabicStyle', fontName='Amiri', alignment=TA_LEFT)
         paragraph_center_style = ParagraphStyle('ArabicStyle', fontName='Amiri', alignment=TA_CENTER)
