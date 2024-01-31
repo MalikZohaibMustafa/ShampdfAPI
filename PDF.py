@@ -66,6 +66,8 @@ def generate_pdf(quotation_id, language):
 
 
 def create_pdf(quotation_id,data, language):
+    current_year = datetime.datetime.now().year  # Get the current year
+
     if language == 'arabic':
         styles = getSampleStyleSheet()
         pdf_path = f"Arabic_quotation_{language}.pdf"
@@ -111,7 +113,7 @@ def create_pdf(quotation_id,data, language):
         elements.append(Image('CenterImage.PNG', 1.2*inch, 0.3*inch, hAlign=TA_CENTER))
         elements.append(Spacer(1, 0.25*inch))
 
-        elements.append(Paragraph(reshape_arabic(f"عرض أسعار رقم العرض : {quotation_id} / 2023"),arabic_bold_style_Center))
+        elements.append(Paragraph(reshape_arabic(f"عرض أسعار رقم العرض : {quotation_id} / {current_year}"),arabic_bold_style_Center))
         elements.append(Spacer(1, 0.25*inch))
 
         
@@ -123,6 +125,8 @@ def create_pdf(quotation_id,data, language):
         elements.append(Spacer(2, 0.25*inch))        
         elements.append(Paragraph(reshape_arabic(f"يسرنا أن نتقدم اليكم بعرض األسعار التالي :"),arabic_bold_style_Right))
         elements.append(Spacer(3, 0.25*inch))        
+        customer_name = data.get('customer', {}).get('name', '')  # Extract customer name
+        arabic_customer_name = reshape_arabic(f"{customer_name} {current_year}")
 
         arabic_table_headers = [
             reshape_arabic('السعر االجمالي \ ريال'), #Total Price/SAR
@@ -133,9 +137,13 @@ def create_pdf(quotation_id,data, language):
             reshape_arabic('المرحلة') #Product Name 
         ]
         table_data = [
-            [reshape_arabic('إقتباس الراجحي 2023') ],
+            [arabic_customer_name],  # Use customer name and current year here
             arabic_table_headers
-            ]
+        ]
+        # table_data = [
+        #     [reshape_arabic('إقتباس الراجحي 2023') ],
+        #     arabic_table_headers
+        #     ]
         
         for product in data['productList']:
             product_name = reshape_arabic(product['product']['arabicProductName'])
@@ -237,7 +245,7 @@ def create_pdf(quotation_id,data, language):
         bold_center_style = ParagraphStyle('BoldCenterStyle', parent=styles['Normal'], fontName='Helvetica-Bold', alignment=TA_CENTER)
         bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontName='Helvetica-Bold')
 
-        elements.append(Paragraph(f"Quotation number: {quotation_id} / 2023", bold_center_style))
+        elements.append(Paragraph(f"Quotation number: {quotation_id} / {current_year}", bold_center_style))
         elements.append(Spacer(1, 0.25*inch))
 
         elements.append(Paragraph("Date: " + datetime.datetime.now().strftime("%d/%m/%Y"), bold_style))
@@ -250,10 +258,11 @@ def create_pdf(quotation_id,data, language):
     # Styles
         styles = getSampleStyleSheet()
         bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontName='Helvetica-Bold')
+        customer_name = data.get('customer', {}).get('name', '')  # Extract customer name
 
         # Table with special first row and bold headings
         table_data = [
-            ["AlRajhi Quotation 2023"],  # First row
+            [f"{customer_name} Quotation {current_year}"],  # Use customer name and current year here
             ["Product Name", "Size", "Price/SAR", "Quantity", "Discounted Price/SAR", "Total Price/SAR"]  # Headings
         ]
         # Populate table_data with items from data['productList']
