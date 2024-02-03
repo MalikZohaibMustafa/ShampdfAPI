@@ -34,6 +34,7 @@ pdfmetrics.registerFont(TTFont('Amiri-Bold', amiri_bold__path))
 pdfmetrics.registerFont(TTFont('Amiri-Italic', amiri_italic_path))
 pdfmetrics.registerFont(TTFont('Amiri-BoldItalic', amiri_bold_italic_path))
 page_width, page_height = letter
+stamp_image_path = 'stamp.jpeg'
 
 app = Flask(__name__)
 CORS(app)
@@ -98,6 +99,7 @@ def create_pdf(quotation_id,data, language):
         doc = SimpleDocTemplate(pdf_path, pagesize=letter)
         elements = []
         overall_total = 0
+        tax=15
         background_image_path = 'bg.jpeg'  
         background_image = ImageReader(background_image_path)
         def create_page(canvas, doc):
@@ -126,12 +128,12 @@ def create_pdf(quotation_id,data, language):
         elements.append(Paragraph(reshape_arabic(f"يسرنا أن نتقدم اليكم بعرض األسعار التالي :"),arabic_bold_style_Right))
         elements.append(Spacer(3, 0.25*inch))        
         customer_name = data.get('customer', {}).get('name', '')  # Extract customer name
-        arabic_customer_name = reshape_arabic(f"{customer_name} {current_year}")
+        arabic_customer_name = reshape_arabic(f"{current_year} {customer_name} اقتباس")
 
         arabic_table_headers = [
             reshape_arabic('السعر االجمالي \ ريال'), #Total Price/SAR
-            reshape_arabic('السعر المخفض/ريال'), #Discounted Price/SAR
             reshape_arabic('العدد'), #Quantity
+            reshape_arabic('السعر المخفض/ريال'), #Discounted Price/SAR
             reshape_arabic('السعر االفرادي \ ريال'), #Price/SAR
             reshape_arabic('القياس - سنوات'), #Size
             reshape_arabic('المرحلة') #Product Name 
@@ -160,8 +162,8 @@ def create_pdf(quotation_id,data, language):
 
                 row = [
                     "{:.2f}".format(total_price),
-                    "{:.2f}".format(discounted_price),
                     str(quantity),
+                    "{:.2f}".format(discounted_price),
                     "{:.2f}".format(base_price),
                     size['size'],
                     product_name,
@@ -210,10 +212,43 @@ def create_pdf(quotation_id,data, language):
         arabic_table = Table(table_data, style=table_style)
         elements.append(arabic_table)
         elements.append(Spacer(5, 0.25*inch))
-        elements.append(Paragraph(reshape_arabic(f"نأمل أن يتجاوز اقتراحنا توقعاتك، ونتطلع إلى العمل معه أنت."),arabic_bold_style_Right))
-        elements.append(Spacer(3, 0.25*inch))
 
-        elements.append(Paragraph(reshape_arabic(f"زي الشام للأناقة ."),arabic_bold_style_Right))
+        tax_percent=15
+        tax_amount = overall_total * (tax_percent / 100)
+        grand_total = overall_total + tax_amount
+
+
+        elements.append(Paragraph(reshape_arabic(f"المجموع الفرعي : {subtotal:.2f} SAR"), arabic_bold_style_Right))
+        elements.append(Spacer(2, 0.25*inch))
+        elements.append(Paragraph(reshape_arabic(f" (15%) قيمة الضريبة: {tax_amount:.2f} SAR"), arabic_bold_style_Right))
+        elements.append(Spacer(2, 0.25*inch))
+        elements.append(Paragraph(reshape_arabic(f"الإجمالي النهائي: {grand_total:.2f} SAR"), arabic_bold_style_Right))
+        elements.append(Spacer(5, 0.25*inch))
+
+        elements.append(Paragraph(reshape_arabic(f"مدة التسليم: 120 يوم عمل، تبدأ من الموافقة وتحويل السلفة"),arabic_bold_style_Right))
+        elements.append(Spacer(2, 0.25*inch))
+
+        elements.append(Paragraph(reshape_arabic(f"طريقة الدفع: 65% عند التأكيد و 35% عند التسليم. يجب تحويل المبلغ إلى حساب المنظمة."),arabic_bold_style_Right))
+        elements.append(Spacer(3, 0.25*inch))
+        elements.append(Paragraph(reshape_arabic(f"مرحباً"), arabic_bold_style_Right))
+        elements.append(Spacer(2, 0.25*inch))
+
+       
+        arabic_data = [[Image(stamp_image_path, 1.5*inch, 1.5*inch), Paragraph(reshape_arabic(f"زي الشام للأناقة"), arabic_bold_style_Right)]]
+
+        arabic_table = Table(arabic_data, colWidths=[2*inch, 4*inch])
+        arabic_table.setStyle(TableStyle([('VALIGN', (0, 0), (1, -1), 'MIDDLE'), ('ALIGN', (1, 0), (1, -1), 'RIGHT')]))
+        elements.append(arabic_table)
+        # elements.append(Paragraph(reshape_arabic(f"زي الشام للأناقة"), arabic_bold_style_Right))
+
+        # arabic_data = [[Image(stamp_image_path, 1.5*inch, 1.5*inch), ""]]
+        # elements.append(Spacer(1, 0.25*inch))
+
+        # arabic_table = Table(arabic_data, colWidths=[2*inch, 4*inch])  # Adjust column widths if needed
+        # arabic_table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE'), ('ALIGN', (0,0), (-1,-1), 'RIGHT')]))
+        # elements.append(arabic_table)
+        # elements.append(Paragraph(reshape_arabic(f"زي الشام للأناقة"),arabic_bold_style_Right))
+
 
         doc.build(elements)
     
@@ -234,6 +269,8 @@ def create_pdf(quotation_id,data, language):
             canvas.restoreState()
         doc.build(elements, onFirstPage=create_page, onLaterPages=create_page)
 
+        elements.append(Spacer(1, 0.25*inch))
+        elements.append(Spacer(1, 0.25*inch))
         elements.append(Spacer(1, 0.25*inch))
 
         # Add another image in the center with a smaller size
@@ -263,7 +300,7 @@ def create_pdf(quotation_id,data, language):
         # Table with special first row and bold headings
         table_data = [
             [f"{customer_name} Quotation {current_year}"],  # Use customer name and current year here
-            ["Product Name", "Size", "Price/SAR", "Quantity", "Discounted Price/SAR", "Total Price/SAR"]  # Headings
+            ["Product Name", "Size", "Price/SAR","Discounted Price/SAR", "Quantity", "Net Amount/SAR"]  # Headings
         ]
         # Populate table_data with items from data['productList']
         for product in data['productList']:
@@ -283,8 +320,8 @@ def create_pdf(quotation_id,data, language):
                     product_name,
                     size['size'],
                     "{:.2f}".format(base_price),
-                    str(quantity),
                     "{:.2f}".format(discounted_price),
+                     str(quantity),
                     "{:.2f}".format(total_price)
                 ]
                 table_data.append(row)
@@ -304,8 +341,14 @@ def create_pdf(quotation_id,data, language):
         # Adding Overall Total Field
         elements.append(Spacer(1, 0.25*inch))
         total_style = ParagraphStyle('TotalStyle', parent=styles['Normal'], fontName='Helvetica-Bold', alignment=TA_RIGHT)
-        elements.append(Paragraph(f"Overall Total: SAR {overall_total:.2f}", total_style))
+        elements.append(Paragraph(f"Sub Total: SAR {overall_total:.2f}", total_style))
+        tax_percent=15
+        tax_amount = overall_total * (tax_percent / 100)
+        elements.append(Paragraph(f"Tax Amount(15%): SAR {tax_amount:.2f}", total_style))
+        grand_total = overall_total + tax_amount
+        elements.append(Paragraph(f"Grand Total: SAR {grand_total:.2f}", total_style))
 
+        elements.append(Spacer(1, 0.25*inch))
 
     # Styles
         styles = getSampleStyleSheet()
@@ -315,8 +358,13 @@ def create_pdf(quotation_id,data, language):
         elements.append(Spacer(1, 0.25*inch))
         elements.append(Paragraph("We hope that our proposal exceeds your expectations, and we look forward to working with you.", bold_style))
         elements.append(Spacer(1, 0.25*inch))
-        elements.append(Spacer(1, 0.25*inch))
-        elements.append(Paragraph("Sham Elegance Uniform", bold_style))
+        # elements.append(Paragraph("Sham Elegance Uniform", bold_style))
+        data = [[Paragraph("Sham Elegance Uniform", bold_style), Image(stamp_image_path, 2*inch, 2*inch)]]
+
+
+        table = Table(data, colWidths=[4*inch, 2*inch])
+        table.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE')]))
+        elements.append(table)
         if language == 'arabic':
             new_elements = []
             for element in elements:
