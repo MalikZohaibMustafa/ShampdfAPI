@@ -318,7 +318,10 @@ def create_pdf(quotation_id,data, language):
         bold_center_style = ParagraphStyle('BoldCenterStyle', parent=styles['Normal'], fontName='Helvetica-Bold', alignment=TA_CENTER)
         bold_style = ParagraphStyle('BoldStyle', parent=styles['Normal'], fontName='Helvetica-Bold')
 
-        elements.append(Paragraph(f"Quotation number: {quotation_id} / {current_year}", bold_center_style))
+# Underline text in a Paragraph
+        quotation_number_text = f"Quotation number: {quotation_id} / {current_year}"
+        underline_quotation_number_paragraph = Paragraph(f"<u>{quotation_number_text}</u>", bold_center_style)
+        elements.append(underline_quotation_number_paragraph)
         elements.append(Spacer(1, 0.25*inch))
 
         elements.append(Paragraph("Date: " + data.get('quoteDate', '') , bold_style))
