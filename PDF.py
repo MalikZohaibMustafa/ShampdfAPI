@@ -142,9 +142,9 @@ def create_pdf(quotation_id,data, language):
         elements.append(Spacer(2, 0.25*inch))
 
 
-        elements.append(Paragraph(reshape_arabic(f"السالم عليكم ورحمة ٱللَّٰه وبركاته"),arabic_bold_style_Right))
+        elements.append(Paragraph(reshape_arabic(f"السلام عليكم ورحمة ٱللَّٰه وبركاته"),arabic_bold_style_Right))
         elements.append(Spacer(2, 0.25*inch))        
-        elements.append(Paragraph(reshape_arabic(f"يسرنا أن نتقدم اليكم بعرض األسعار التالي :"),arabic_bold_style_Right))
+        elements.append(Paragraph(reshape_arabic(f"يسرنا أن نتقدم اليكم بعرض السعر التالي :"),arabic_bold_style_Right))
         elements.append(Spacer(1, 0.25*inch))        
         customer_name = data.get('customer', {}).get('name', '')  # Extract customer name
         discount_present = has_discounts(data['productList'])
@@ -157,7 +157,7 @@ def create_pdf(quotation_id,data, language):
             reshape_arabic('السعر االجمالي \ ريال'), #Total Price/SAR
             reshape_arabic('العدد'), #Quantity
             reshape_arabic('السعر المخفض/ريال'), #Discounted Price/SAR
-            reshape_arabic('السعر االفرادي \ ريال'), #Price/SAR
+            reshape_arabic('السعر الفردي \ ريال'), #Price/SAR
             reshape_arabic('القياس - سنوات'), #Size
             reshape_arabic('المرحلة') #Product Name 
         ]
@@ -284,7 +284,7 @@ def create_pdf(quotation_id,data, language):
         elements.append(Spacer(2, 0.25*inch))
         elements.append(Paragraph(reshape_arabic(f"تفضلوا بقبول فائق االحترام"), arabic_bold_style_Right))
         elements.append(Spacer(2, 0.25*inch))
-        elements.append(Paragraph(reshape_arabic(f"زي الشام للأناقة"), arabic_bold_style_Right))
+        elements.append(Paragraph(reshape_arabic(f"شام الأناقة للخياطة"), arabic_bold_style_Right))
         elements.append(Spacer(2, 0.25*inch))
         elements.append(Image(stamp_image_path, 1.25*inch, 1.25*inch, hAlign='RIGHT'))  # Align the image as needed
 
@@ -468,7 +468,7 @@ def create_pdf(quotation_id,data, language):
         elements.append(bullet_list)
         elements.append(Paragraph("Please accept my highest respect.", bold_style))
         elements.append(Spacer(0.25, 0.25*inch))
-        elements.append(Paragraph("Sham Elegance Uniform", bold_style))
+        elements.append(Paragraph("Sham Elegance Tailoring", bold_style))
         elements.append(Image(stamp_image_path, 1.25*inch, 1.25*inch, hAlign='LEFT'))  # Align the image as needed
 
         # elements.append(Paragraph("Sham Elegance Uniform", bold_style))
