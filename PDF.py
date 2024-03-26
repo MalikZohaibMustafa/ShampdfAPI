@@ -73,6 +73,120 @@ def generate_pdf(quotation_id, language):
     return send_file(pdf_path, as_attachment=True)
 
 
+@app.route('/generate-pdf/<int:quotation_id>/<language>', methods=['GET'])
+def welcome1(quotation_id,language):
+        # For a GET request, return a welcome message or render a template
+        welcome_message = """
+        <h1>Welcome to the Quotation PDF Generator API</h1>
+        <p> GET request received. Use POST request to get the pdf at <code>/generate-pdf/&lt;quotation_id&gt;/&lt;language&gt;</code> </p>
+
+        <p>Example POST request:</p>
+        <code>POST BASE_URL/generate-pdf/123/english</code>
+        <p>Example Body:</p>
+        <pre style="background-color: black; color: white; padding: 10px;">
+        <code>
+    {
+      "quoteDate": "2024-03-25",
+      "customer": {
+        "name": "John Doe",
+        "address": "1234 Main St",
+        "email": "johndoe@example.com"
+      },
+      "productList": [
+        {
+          "product": {
+            "productName": "Product 1",
+            "arabicProductName": "المنتج 1",
+            "basePrice": "100.00"
+          },
+          "quantity": "2",
+          "selectedSizes": [
+            {"size": "M"},
+            {"size": "L"}
+          ],
+          "discount": "10"
+        },
+        {
+          "product": {
+            "productName": "Product 2",
+            "arabicProductName": "المنتج 2",
+            "basePrice": "150.00"
+          },
+          "quantity": "1",
+          "selectedSizes": [
+            {"size": "XL"}
+          ],
+          "discount": "5"
+        }
+      ]
+    }</code>
+        </pre>
+        """
+        return welcome_message
+
+
+
+@app.route('/', methods=['GET', 'POST'])
+def welcome():
+    if request.method == 'POST':
+        # Handle the POST request if necessary.
+        return jsonify({"message": "POST request received. Use the correct API endpoints to interact. i.e. /generate-pdf/123/english"})
+    else:
+        # For a GET request, return a welcome message or render a template
+        welcome_message = """
+        <h1>Welcome to the Quotation PDF Generator API</h1>
+        <p>This API allows you to generate PDF documents for quotations in either English or Arabic.</p>
+        <h2>How to Use</h2>
+        <p>To generate a PDF, make a POST request to <code>/generate-pdf/&lt;quotation_id&gt;/&lt;language&gt;</code> with the necessary data.</p>
+        <ul>
+            <li><code>quotation_id</code> is an integer that uniquely identifies the quotation.</li>
+            <li><code>language</code> is a string that specifies the language of the PDF ('english' or 'arabic').</li>
+        </ul>
+        <p>Example POST request:</p>
+        <code>POST BASE_URL/generate-pdf/123/english</code>
+        <p>Body:</p>
+        <pre style="background-color: black; color: white; padding: 10px;">
+        <code>{
+  "quoteDate": "2024-03-25",
+  "customer": {
+    "name": "John Doe",
+    "address": "1234 Main St",
+    "email": "johndoe@example.com"
+  },
+  "productList": [
+    {
+      "product": {
+        "productName": "Product 1",
+        "arabicProductName": "المنتج 1",
+        "basePrice": "100.00"
+      },
+      "quantity": "2",
+      "selectedSizes": [
+        {"size": "M"},
+        {"size": "L"}
+      ],
+      "discount": "10"
+    },
+    {
+      "product": {
+        "productName": "Product 2",
+        "arabicProductName": "المنتج 2",
+        "basePrice": "150.00"
+      },
+      "quantity": "1",
+      "selectedSizes": [
+        {"size": "XL"}
+      ],
+      "discount": "5"
+    }
+  ]
+}</code>
+        </pre>
+        """
+        return welcome_message
+
+
+
 def create_pdf(quotation_id,data, language):
     current_year = datetime.datetime.now().year  # Get the current year
 
